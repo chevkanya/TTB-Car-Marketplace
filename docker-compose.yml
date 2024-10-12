@@ -1,0 +1,37 @@
+version: "3.8"
+services:
+  api-car-marketplace:
+    build:
+      context: ./
+      dockerfile: ./dev/api/dockerfile
+    container_name: api-car-marketplace
+    ports:
+      - 3011:3011
+    networks:
+      - car-marketplace-network
+    volumes:
+      - ./service:/app
+    env_file:
+      - ./.env
+    environment:
+      CHOKIDAR_USEPOLLING: "true"
+    depends_on:
+      - postgres-car-marketplace-db
+
+  postgres-car-marketplace-db:
+    image: postgres:14
+    container_name: postgres-car-marketplace-db
+    ports:
+      - 2500:5432
+    environment:
+      POSTGRES_USER: "${DB_USER}"
+      POSTGRES_PASSWORD: "${DB_PASS}"
+      POSTGRES_DB: "${DB_NAME}"
+    restart: always
+    volumes:
+      - "./postgres:/docker-entrypoint-initdb.d"
+    networks:
+      - car-marketplace-network
+networks:
+  car-marketplace-network:
+    name: car-marketplace-network
